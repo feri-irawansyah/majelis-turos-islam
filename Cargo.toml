@@ -13,6 +13,11 @@ leptos_router = { version = "0.8" }
 console_log = "1"
 log = "0.4"
 console_error_panic_hook = "0.1"
+serde = { version = "1.0.140", features = ["derive"] }
+chrono = { version = "0.4.40", features = ["serde"] }
+gloo-timers = "0.3.0"
+gloo-net = "0.6.0"
+wasm-bindgen-futures = "0.4.50"
 
 # utils
 # strum = { version = "0.25", features = ["derive", "strum_macros"] }

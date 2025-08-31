@@ -7,12 +7,13 @@
   <link data-trunk rel="scss" href="public/styles.scss" />
 
   <!-- Include favicon in dist output: see https://trunkrs.dev/assets/#icon -->
-  <link data-trunk rel="icon" href="public/img/favicon.ico" />
+  <link data-trunk rel="icon" href="public/favicon.ico" />
+  <link data-trunk rel="copy-dir" href="public/img" />
+  <link data-trunk rel="copy-dir" href="public/fonts" />
 
   <!-- include support for `wasm-bindgen --weak-refs` - see: https://rustwasm.github.io/docs/wasm-bindgen/reference/weak-references.html -->
   <link data-trunk rel="rust" data-wasm-opt="z" data-weak-refs />
-  <script
-    src="https://vjwknqthtunirowwtrvj.supabase.co/storage/v1/object/public/feri-irawansyah.my.id/assets/js/bootstrap.bundle.min.js"></script>
+  <script data-trunk src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
 <body></body>

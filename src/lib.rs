@@ -10,7 +10,10 @@ mod pages;
 // Top-Level pages
 use crate::{
     layouts::main_layout::MainLayout,
-    pages::{article::Article, home::Home, not_found::NotFound},
+    pages::{
+        about::About, article::Article, fatwa::Fatwa, home::Home, not_found::NotFound,
+        tasawuf::Tasawuf,
+    },
 };
 
 /// An app router which renders the homepage and handles 404's
@@ -38,6 +41,9 @@ pub fn App() -> impl IntoView {
                 <ParentRoute path=leptos_router::path!("/") view=MainLayout>
                     <Route path=StaticSegment("") view=Home />
                     <Route path=StaticSegment("artikel") view=Article />
+                    <Route path=StaticSegment("fatwa-maklumat") view=Fatwa />
+                    <Route path=StaticSegment("tawawuf") view=Tasawuf />
+                    <Route path=StaticSegment("tentang") view=About />
                 </ParentRoute>
             </Routes>
         </Router>

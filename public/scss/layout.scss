@@ -1,0 +1,99 @@
+main {
+    &.main-layout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh; /* biar full tinggi */
+        position: relative;
+
+        .main-content {
+            background-color: #fff;
+            border: 1px solid #5d2b00;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            margin-top: -20rem;
+        }
+    }
+
+    .left-vector {
+        align-self: flex-start; /* pojok kiri */
+        height: auto;
+    }
+
+    .right-vector {
+        align-self: flex-end; /* pojok kanan */
+        margin-top: auto;     /* dorong ke bawah */
+        height: auto;
+    }
+
+    .bg-cocolate {
+        background-color: $cocolate;
+        height: 3rem;
+
+        .nav-link {
+            display: flex;
+            color: #fff !important;
+        }
+
+        .clock {
+            font-size: 1rem;
+            font-weight: 200 !important;
+        }
+
+        .waktu-sholat {
+            display: flex;
+            align-items: center;
+            i {
+                font-size: 12px;
+            }
+            img.mosque{
+                width: 1.5rem;
+                height: 1.5rem;
+                color: #fff !important;
+            }
+        }
+    }
+    .table-responsive {
+        position: absolute;
+        top: 0;
+        margin-left: 8rem !important;
+        z-index: 999999 !important;
+    }
+    .navigation {
+        height: 5rem;
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            img {
+                width: 3rem;
+                height: 3rem;
+            }
+            .brand-name {
+                display: flex;
+                flex-direction: column;
+                h5 {
+                    font-size: 1.2rem;
+                    font-weight: 600 !important;
+                    margin-bottom: 0 !important;
+                    color: $primary;
+                }
+                p {
+                    font-size: 0.8rem;
+                    font-weight: 300;
+                    margin-bottom: 0 !important;
+                    color: #5d2b00;
+                }
+            }
+        }
+    }
+    .card {
+        border: none;
+        border-radius: 0;
+        .card-img-overlay {
+            background-color: rgba(#5d2b00, 0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+        }
+    }
+}
