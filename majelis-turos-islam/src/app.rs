@@ -1,6 +1,7 @@
 use chrono::{DateTime, Datelike, FixedOffset, Utc};
 use serde::Deserialize;
 
+// Rest Api List
 #[derive(Deserialize, Clone, Default, Debug)]
 pub struct ResultList<T> {
     pub rows: Vec<T>,
