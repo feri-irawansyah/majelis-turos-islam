@@ -1,0 +1,17 @@
+{
+  "name": "majelis-turos-islam",
+  "version": "1.0.0",
+  "description": "<picture>\r     <source srcset=\"https://raw.githubusercontent.com/leptos-rs/leptos/main/docs/logos/Leptos_logo_Solid_White.svg\" media=\"(prefers-color-scheme: dark)\">\r     <img src=\"https://raw.githubusercontent.com/leptos-rs/leptos/main/docs/logos/Leptos_logo_RGB.svg\" alt=\"Leptos Logo\">\r </picture>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aos": "^2.3.4",
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1"
+  }
+}

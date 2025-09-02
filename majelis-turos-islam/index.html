@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- Add a plain CSS file: see https://trunkrs.dev/assets/#css -->
+  <!-- If using Tailwind with Leptos CSR, see https://trunkrs.dev/assets/#tailwind instead-->
+  <link data-trunk rel="scss" href="public/styles.scss" />
+
+  <!-- Include favicon in dist output: see https://trunkrs.dev/assets/#icon -->
+  <link data-trunk rel="icon" href="public/favicon.ico" />
+  <link data-trunk rel="copy-dir" href="public/img" />
+  <link data-trunk rel="copy-dir" href="public/fonts" />
+  <link data-trunk rel="css" href="node_modules/aos/dist/aos.css" />
+
+  <!-- include support for `wasm-bindgen --weak-refs` - see: https://rustwasm.github.io/docs/wasm-bindgen/reference/weak-references.html -->
+  <link data-trunk rel="rust" data-wasm-opt="z" data-weak-refs />
+  <script data-trunk src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script data-trunk src="node_modules/aos/dist/aos.js"></script>
+</head>
+
+<body>
+  <script>
+    AOS.init();
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,20 @@
+{
+    "rust-analyzer.rustfmt.overrideCommand": [
+        "leptosfmt",
+        "--stdin",
+        "--rustfmt"
+    ],
+    "editor.formatOnSave": true,
+    "[rust]": {
+        "editor.defaultFormatter": "rust-lang.rust-analyzer",
+    },
+    "files.associations": {
+        "*.rs": "rust"
+    },
+    "rust-analyzer.diagnostics.disabled": [
+        "macro-error",
+        "leptos_macro"
+    ],
+    "rust-analyzer.diagnostics.warningsAsInfo": [],
+    "rust-analyzer.diagnostics.warningsAsHint": []
+}
