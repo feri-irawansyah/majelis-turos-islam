@@ -10,19 +10,21 @@
   <link data-trunk rel="icon" href="public/favicon.ico" />
   <link data-trunk rel="copy-dir" href="public/img" />
   <link data-trunk rel="copy-dir" href="public/fonts" />
-  <link data-trunk rel="css" href="node_modules/aos/dist/aos.css" />
+  <link data-trunk rel="css" href="node_modules/aos/dist/aos.css" data-target-path="vendor/css" />
 
   <!-- include support for `wasm-bindgen --weak-refs` - see: https://rustwasm.github.io/docs/wasm-bindgen/reference/weak-references.html -->
   <link data-trunk rel="rust" data-wasm-opt="z" data-weak-refs />
-  <script data-trunk src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-  <script data-trunk src="node_modules/aos/dist/aos.js"></script>
+
+  <!-- Add any other imports you need here: see https://trunkrs.dev/assets/#javascript -->
+  <script data-trunk src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js" data-target-path="vendor/js"></script>
+  <script data-trunk src="node_modules/aos/dist/aos.js" data-target-path="vendor/js"></script>
+
 </head>
 
 <body>
-  <script>
-    AOS.init();
-  </script>
 
+  <!-- Custom JavaScript -->
+  <script data-trunk src="public/js/index.js" data-target-path="vendor/js"></script>
 </body>
 
 </html>

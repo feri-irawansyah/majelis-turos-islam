@@ -10,6 +10,24 @@ pub struct ResultList<T> {
     pub total_pages: i64,
 }
 
+#[derive(Deserialize, Clone, Debug, Default)]
+pub struct NewsData {
+    pub news_id: i32,
+    pub title: String,
+    pub slug: String,
+    pub content: String,
+    pub created_at: String,
+}
+#[derive(Deserialize, Clone, Debug, Default)]
+pub struct ArticleData {
+    pub article_id: i32,
+    pub title: String,
+    pub slug: String,
+    pub markdown: String,
+    pub author_id: i32,
+    pub created_at: String,
+}
+
 pub fn format_wib_date(date_str: &str) -> String {
     // Parse input sebagai UTC
     let utc_datetime = DateTime::parse_from_rfc3339(date_str).unwrap_or_else(|_| Utc::now().into());
@@ -18,9 +36,22 @@ pub fn format_wib_date(date_str: &str) -> String {
     let wib_offset = FixedOffset::east_opt(7 * 3600).unwrap();
     let wib_datetime = utc_datetime.with_timezone(&wib_offset);
 
-    let weekdays = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+    let weekdays = [
+        "Ahad", "Senin", "Selasa", "Rabu", "Kamis", "Jum'at", "Sabtu",
+    ];
     let months = [
-        "Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
+        "Januari",
+        "Februari",
+        "Maret",
+        "April",
+        "Mei",
+        "Juni",
+        "Juli",
+        "Agustus",
+        "September",
+        "Oktober",
+        "November",
+        "Desember",
     ];
 
     let weekday = weekdays[wib_datetime.weekday().num_days_from_sunday() as usize];
@@ -29,5 +60,5 @@ pub fn format_wib_date(date_str: &str) -> String {
     let day = wib_datetime.day();
     let year = wib_datetime.year();
 
-    format!("{} {}, {} {}", weekday, day, month, year)
+    format!("{}, {} {} {}", weekday, day, month, year)
 }

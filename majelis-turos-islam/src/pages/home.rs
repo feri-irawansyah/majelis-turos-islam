@@ -1,29 +1,20 @@
 use leptos::{prelude::*, task::spawn_local};
-use serde::Deserialize;
 
-use crate::{BACKEND_URL, app::{ResultList}, components::section_title::SectionTitle};
-
-#[derive(Deserialize, Clone, Debug, Default)]
-struct NewsArticle {
-    news_id: i32,
-    title: String,
-    slug: String,
-    content: String,
-    created_at: String,
-}
+use crate::{BACKEND_URL, app::{ArticleData, NewsData, ResultList}, components::section_title::SectionTitle};
 
 /// Default Home Page
 #[component]
 pub fn Home() -> impl IntoView {
 
-    let news = RwSignal::<ResultList<NewsArticle>>::new(ResultList::default());
+    let news = RwSignal::<ResultList<NewsData>>::new(ResultList::default());
+    let article = RwSignal::<ResultList<ArticleData>>::new(ResultList::default());
 
     // fetch artikel
     Effect::new(move |_| {
         let url = format!("{}/news/data", BACKEND_URL);
         spawn_local(async move {
             if let Ok(response) = gloo_net::http::Request::get(&url).send().await {
-                match response.json::<ResultList<NewsArticle>>().await {
+                match response.json::<ResultList<NewsData>>().await {
                     Ok(data) => {
                         news.set(data);
                     }
@@ -37,11 +28,29 @@ pub fn Home() -> impl IntoView {
         });
     });
 
+    Effect::new(move |_| {
+        let url = format!("{}/article/data?page=1&pageSize=9", BACKEND_URL);
+        spawn_local(async move {
+            if let Ok(response) = gloo_net::http::Request::get(&url).send().await {
+                match response.json::<ResultList<ArticleData>>().await {
+                    Ok(data) => {
+                        article.set(data);
+                    }
+                    Err(err) => {
+                        log::error!("failed to parse response: {:?}", err);
+                    }
+                }
+            } else {
+                log::error!("request failed");
+            }
+        });
+    });
+
 
     view! {
-        <div class="d-flex flex-row justify-content-between">
+        <div class="row justify-content-between">
             <div
-                class="flex-column w-50 p-1"
+                class="col-md-6 p-1"
                 data-aos="fade-right"
                 data-delay="100"
                 data-aos-duration="1500"
@@ -139,7 +148,7 @@ pub fn Home() -> impl IntoView {
                 </div>
             </div>
             <div
-                class="flex-column w-50 p-1"
+                class="col-md-6 p-1"
                 data-aos="fade-left"
                 data-delay="100"
                 data-aos-duration="1500"
@@ -167,36 +176,71 @@ pub fn Home() -> impl IntoView {
         <br />
         <br />
         <br />
-        <ArtikelPreview />
+        <ArtikelPreview data=article />
     }
 }
 
 #[component]
-pub fn ArtikelPreview() -> impl IntoView {
+pub fn ArtikelPreview(data: RwSignal<ResultList<ArticleData>>) -> impl IntoView {
     view! {
-        <div class="d-flex flex-column justify-content-center">
+        <div
+            class="d-flex flex-column justify-content-center"
+            data-aos="fade-up"
+            data-aos-duration="1000"
+        >
             <SectionTitle
                 title="Artikel Terbaru".to_string()
                 sub_title="Event & Blog".to_string()
                 position="center".to_string()
             />
-            <div class="card mb-3" style="max-width: 540px;">
-                <div class="row g-0">
-                    <div class="col-md-4">
-                        <img src="..." class="img-fluid rounded-start" alt="..." />
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
-                            <p class="card-text">
-                                This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.
-                            </p>
-                            <p class="card-text">
-                                <small class="text-body-secondary">Last updated 3 mins ago</small>
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            <div class="row g-3">
+                <Show
+                    when=move || data.get().rows.len() != 0
+                    fallback=|| view! { <p>"Loading..."</p> }
+                >
+                    {move || {
+                        data.get()
+                            .rows
+                            .iter()
+                            .enumerate()
+                            .map(|(i, article)| {
+                                view! {
+                                    <div
+                                        class="col-lg-4 col-md-6 col-12"
+                                        data-aos="fade-up"
+                                        data-aos-duration="1000"
+                                        data-aos-delay=i * 100
+                                    >
+                                        <div class="card mb-3" style="max-width: 540px;">
+                                            <div class="row h-100 g-0">
+                                                <div class="col-md-4">
+                                                    <img
+                                                        src=format!(
+                                                            "https://fastly.picsum.photos/id/685/200/200.jpg?hmac=1IjDFMSIa0T_JSvcq79_e2NWPwRJg61Ufbfu4eM4HvA",
+                                                        )
+                                                        class="img-fluid rounded-start"
+                                                        alt="..."
+                                                    />
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">{article.title.clone()}</h5>
+                                                        <p class="card-text">{article.author_id}</p>
+                                                        <p class="card-text">
+                                                            <small class="text-body-secondary">
+                                                                {article.created_at.clone()}
+                                                            </small>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            })
+                            .collect_view()
+                    }}
+                </Show>
             </div>
         </div>
     }
