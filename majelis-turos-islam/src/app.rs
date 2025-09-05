@@ -28,6 +28,23 @@ pub struct ArticleData {
     pub created_at: String,
 }
 
+#[derive(Deserialize, Clone, Debug, Default)]
+pub struct EventData {
+    pub event_id: i32,
+    pub title: String,
+    pub slug: String,
+    pub markdown: String,
+    pub created_at: String,
+}
+
+#[derive(Deserialize, Clone, Debug, Default)]
+pub struct KajianData {
+    pub kajian_id: i32,
+    pub title: String,
+    pub yt_link: String,
+    pub created_at: String,
+}
+
 pub fn format_wib_date(date_str: &str) -> String {
     // Parse input sebagai UTC
     let utc_datetime = DateTime::parse_from_rfc3339(date_str).unwrap_or_else(|_| Utc::now().into());

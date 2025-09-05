@@ -1,6 +1,8 @@
+use std::fmt::format;
+
 use leptos::{prelude::*, task::spawn_local};
 
-use crate::{BACKEND_URL, app::{ArticleData, NewsData, ResultList}, components::section_title::SectionTitle};
+use crate::{BACKEND_URL, app::{ArticleData, EventData, KajianData, NewsData, ResultList}, components::section_title::SectionTitle};
 
 /// Default Home Page
 #[component]
@@ -8,6 +10,8 @@ pub fn Home() -> impl IntoView {
 
     let news = RwSignal::<ResultList<NewsData>>::new(ResultList::default());
     let article = RwSignal::<ResultList<ArticleData>>::new(ResultList::default());
+    let event = RwSignal::<ResultList<EventData>>::new(ResultList::default());
+    let kajian = RwSignal::<ResultList<KajianData>>::new(ResultList::default());
 
     // fetch artikel
     Effect::new(move |_| {
@@ -46,15 +50,45 @@ pub fn Home() -> impl IntoView {
         });
     });
 
+    Effect::new(move |_| {
+        let url = format!("{}/event/data?page=1&pageSize=9", BACKEND_URL);
+        spawn_local(async move {
+            if let Ok(response) = gloo_net::http::Request::get(&url).send().await {
+                match response.json::<ResultList<EventData>>().await {
+                    Ok(data) => {
+                        event.set(data);
+                    }
+                    Err(err) => {
+                        log::error!("failed to parse response: {:?}", err);
+                    }
+                }
+            } else {
+                log::error!("request failed");
+            }
+        });
+    });
+
+    Effect::new(move |_| {
+        let url = format!("{}/kajian/data?page=1&pageSize=9", BACKEND_URL);
+        spawn_local(async move {
+            if let Ok(response) = gloo_net::http::Request::get(&url).send().await {
+                match response.json::<ResultList<KajianData>>().await {
+                    Ok(data) => {
+                        kajian.set(data);
+                    }
+                    Err(err) => {
+                        log::error!("failed to parse response: {:?}", err);
+                    }
+                }
+            } else {
+                log::error!("request failed");
+            }
+        });
+    });
 
     view! {
         <div class="row justify-content-between">
-            <div
-                class="col-md-6 p-1"
-                data-aos="fade-right"
-                data-delay="100"
-                data-aos-duration="1500"
-            >
+            <div class="col-md-6 p-1" data-aos="fade-right" data-delay="100">
                 <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel ">
                     // <!-- Indicators -->
                     <div class="carousel-indicators">
@@ -147,12 +181,7 @@ pub fn Home() -> impl IntoView {
                     </button>
                 </div>
             </div>
-            <div
-                class="col-md-6 p-1"
-                data-aos="fade-left"
-                data-delay="100"
-                data-aos-duration="1500"
-            >
+            <div class="col-md-6 p-1" data-aos="fade-left" data-delay="100">
                 <div class="card px-3">
                     <SectionTitle
                         title="Tentang MTI".to_string()
@@ -177,23 +206,20 @@ pub fn Home() -> impl IntoView {
         <br />
         <br />
         <ArtikelPreview data=article />
+        <EventPreview data=event kajian=kajian />
     }
 }
 
 #[component]
 pub fn ArtikelPreview(data: RwSignal<ResultList<ArticleData>>) -> impl IntoView {
     view! {
-        <div
-            class="d-flex flex-column justify-content-center"
-            data-aos="fade-up"
-            data-aos-duration="1000"
-        >
+        <div class="d-flex flex-column justify-content-center" data-aos="fade-up">
             <SectionTitle
                 title="Artikel Terbaru".to_string()
                 sub_title="Event & Blog".to_string()
                 position="center".to_string()
             />
-            <div class="row g-3">
+            <div class="row g-3 my-3">
                 <Show
                     when=move || data.get().rows.len() != 0
                     fallback=|| view! { <p>"Loading..."</p> }
@@ -205,7 +231,8 @@ pub fn ArtikelPreview(data: RwSignal<ResultList<ArticleData>>) -> impl IntoView 
                             .enumerate()
                             .map(|(i, article)| {
                                 view! {
-                                    <div
+                                    <a
+                                        href=format!("/article/{}", article.slug.clone())
                                         class="col-lg-4 col-md-6 col-12"
                                         data-aos="fade-up"
                                         data-aos-duration="1000"
@@ -235,6 +262,114 @@ pub fn ArtikelPreview(data: RwSignal<ResultList<ArticleData>>) -> impl IntoView 
                                                 </div>
                                             </div>
                                         </div>
+                                    </a>
+                                }
+                            })
+                            .collect_view()
+                    }}
+                </Show>
+            </div>
+        </div>
+    }
+}
+
+#[component]
+pub fn EventPreview(data: RwSignal<ResultList<EventData>>, kajian: RwSignal<ResultList<KajianData>>) -> impl IntoView {
+    view! {
+        <div class="d-flex flex-column justify-content-center" data-aos="fade-up">
+            <SectionTitle
+                title="Kajian Islami".to_string()
+                sub_title="".to_string()
+                position="center".to_string()
+            />
+            <div class="row g-3 my-3">
+                <div class="col-lg-6 col-12">
+                    <Kajian data=kajian />
+                </div>
+            </div>
+        </div>
+    }
+}
+
+#[component]
+pub fn Kajian(data: RwSignal<ResultList<KajianData>>) -> impl IntoView {
+
+    let auto_slide = RwSignal::new(true);
+    let playing = RwSignal::new(false);
+
+    view! {
+        <div id="eventCarousel" class="carousel slide event-slider" data-bs-ride="carousel">
+            // <!-- Indicators -->
+            <div class="carousel-indicators">
+                <Show when=move || !data.get().rows.is_empty() fallback=|| view! {}>
+                    {move || {
+                        let n = data.get().rows.len();
+                        data.get()
+                            .rows
+                            .iter()
+                            .enumerate()
+                            .rev()
+                            .map(|(orig_i, kajian)| {
+                                let display_i = n - 1 - orig_i;
+                                let thumb_url = format!(
+                                    "https://img.youtube.com/vi/{}/hqdefault.jpg",
+                                    kajian.yt_link.split("v=").nth(1).unwrap_or(""),
+                                );
+                                view! {
+                                    <button
+                                        type="button"
+                                        data-bs-target="#eventCarousel"
+                                        data-bs-slide-to=display_i.to_string()
+                                        class=format!(
+                                            "card {}",
+                                            if display_i == 0 { "active" } else { "" },
+                                        )
+                                        aria-current=if display_i == 0 { "true" } else { "false" }
+                                        aria-label=format!("Slide {}", display_i + 1)
+                                    >
+                                        <img src=thumb_url alt="YouTube thumbnail" />
+                                    </button>
+                                }
+                            })
+                            .collect_view()
+                    }}
+
+                </Show>
+            </div>
+
+            // <!-- The slideshow/carousel -->
+            <div class="carousel-inner">
+                <Show
+                    when=move || !data.get().rows.is_empty()
+                    fallback=|| view! { <p>"Loading..."</p> }
+                >
+                    {move || {
+                        let n = data.get().rows.len();
+                        data.get()
+                            .rows
+                            .iter()
+                            .enumerate()
+                            .rev()
+                            .map(|(orig_i, event)| {
+                                let display_i = n - 1 - orig_i;
+                                view! {
+                                    <div
+                                        class=format!(
+                                            "carousel-item {}",
+                                            if display_i == 0 { "active" } else { "" },
+                                        )
+                                        data-bs-interval="5000"
+                                    >
+                                        <div class="carousel-img-wrapper">
+                                            <YoutubeEmbed
+                                                url=event.yt_link.clone()
+                                                playing=playing
+                                                on_play=Callback::new(move |_| {
+                                                    playing.set(true);
+                                                    auto_slide.set(false);
+                                                })
+                                            />
+                                        </div>
                                     </div>
                                 }
                             })
@@ -242,6 +377,49 @@ pub fn ArtikelPreview(data: RwSignal<ResultList<ArticleData>>) -> impl IntoView 
                     }}
                 </Show>
             </div>
+        </div>
+    }
+}
+
+#[component]
+pub fn YoutubeEmbed(url: String, on_play: Callback<(), ()>, playing: RwSignal<bool>) -> impl IntoView {
+    let video_id = url.split("v=").nth(1).unwrap_or("").to_string();
+    let thumb_url = format!("https://img.youtube.com/vi/{}/hqdefault.jpg", video_id);
+    let embed_url = format!("https://www.youtube.com/embed/{}?autoplay=1", video_id);
+
+    view! {
+        <div class="youtube-thumbnail" on:click=move |_| _ = on_play>
+            <Show
+                when=move || playing.get()
+                fallback=move || {
+                    let url = thumb_url.clone();
+                    view! {
+                        <img src=url alt="YouTube thumbnail" />
+                        <div style="position: absolute; top: 50%; left: 50%; 
+                        transform: translate(-50%, -50%); 
+                        background: rgba(0,0,0,0.6); 
+                        border-radius: 50%; 
+                        padding: 20px;">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="40"
+                                height="40"
+                                fill="white"
+                                viewBox="0 0 16 16"
+                            >
+                                <path d="M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l4-2.5a.5.5 0 0 0 0-.814l-4-2.5z" />
+                            </svg>
+                        </div>
+                    }
+                }
+            >
+                <iframe
+                    src=embed_url.clone()
+                    title="YouTube video player"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
+                ></iframe>
+            </Show>
         </div>
     }
 }

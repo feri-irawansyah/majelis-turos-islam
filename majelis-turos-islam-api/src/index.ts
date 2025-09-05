@@ -12,6 +12,13 @@ import {
   createArticle,
   getArticlesData,
 } from "./controllers/article-controller";
+import {
+  createEvent,
+  createKajian,
+  getEventsData,
+  getKajianData,
+  updateEvent,
+} from "./controllers/event-controller";
 
 type Bindings = {
   DB: D1Database;
@@ -47,6 +54,15 @@ const routes = (app: Hono<{ Bindings: Bindings }>) => {
   // articles
   app.get("/article/data", getArticlesData);
   app.post("/article/create", createArticle);
+
+  // events
+  app.get("/event/data", getEventsData);
+  app.post("/event/create", createEvent);
+  app.post("/event/update/:id", updateEvent);
+
+  // kajian
+  app.get("/kajian/data", getKajianData);
+  app.post("/kajian/create", createKajian);
 
   app.notFound((c) => c.json({ error: "Not Found" }, 404));
 };
