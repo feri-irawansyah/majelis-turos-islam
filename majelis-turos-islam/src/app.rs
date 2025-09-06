@@ -18,6 +18,7 @@ pub struct NewsData {
     pub content: String,
     pub created_at: String,
 }
+
 #[derive(Deserialize, Clone, Debug, Default)]
 pub struct ArticleData {
     pub article_id: i32,

@@ -1,34 +1,7 @@
-use gloo_net::http::Request;
-use leptos::{prelude::*, task::spawn_local};
-use serde::Deserialize;
-
-#[derive(Debug, Deserialize, Clone)]
-struct Timings {
-    #[serde(rename = "Fajr")]
-    fajr: String,
-    #[serde(rename = "Dhuhr")]
-    dhuhr: String,
-    #[serde(rename = "Asr")]
-    asr: String,
-    #[serde(rename = "Maghrib")]
-    maghrib: String,
-    #[serde(rename = "Isha")]
-    isha: String,
-}
-
-#[derive(Debug, Deserialize)]
-struct Data {
-    timings: Timings,
-}
-
-#[derive(Debug, Deserialize)]
-struct ApiResponse {
-    data: Data,
-}
+use leptos::prelude::*;
 
 #[component]
 pub fn SholatHour(show_sholat: RwSignal<bool>) -> impl IntoView {
-
     view! {
         <nav class="navbar navbar-expand-lg bg-cocolate sticky-top">
             <div class="container">
@@ -122,65 +95,29 @@ fn format_now() -> String {
 
 #[component]
 pub fn SholatView(show: RwSignal<bool>) -> impl IntoView {
-    let (sholat, set_sholat) = signal::<Option<Timings>>(None);
+    // let (sholat, set_sholat) = signal::<Option<Timings>>(None);
 
-    // fetch jadwal sholat
-    Effect::new(move |_| {
-        let url = "https://api.aladhan.com/v1/timingsByCity/today?city=Jakarta&country=Indonesia&method=2";
+    // // fetch jadwal sholat
+    // Effect::new(move |_| {
+    //     let url = "https://api.aladhan.com/v1/timingsByCity/today?city=Jakarta&country=Indonesia&method=2";
 
-        spawn_local(async move {
-            if let Ok(response) = Request::get(&url).send().await {
-                if let Ok(data) = response.json::<ApiResponse>().await {
-                    set_sholat.set(Some(data.data.timings));
-                }
-            }
-        });
-    });
+    //     spawn_local(async move {
+    //         if let Ok(response) = Request::get(&url).send().await {
+    //             if let Ok(data) = response.json::<ApiResponse>().await {
+    //                 set_sholat.set(Some(data.data.timings));
+    //             }
+    //         }
+    //     });
+    // });
 
     view! {
         <div class="table-responsive" class:d-none=move || !show.get()>
-            <Show when=move || sholat.get().is_some() fallback=|| view! { <p>Loading...</p> }>
-                <table class="table table-bordered table-striped table-sm text-center align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Sholat</th>
-                            <th>Waktu</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {move || {
-                            sholat
-                                .get()
-                                .map(|data| {
-                                    view! {
-                                        <>
-                                            <tr>
-                                                <td>Fajr</td>
-                                                <td>{data.fajr}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Dhuhr</td>
-                                                <td>{data.dhuhr}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Asr</td>
-                                                <td>{data.asr}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Maghrib</td>
-                                                <td>{data.maghrib}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Isha</td>
-                                                <td>{data.isha}</td>
-                                            </tr>
-                                        </>
-                                    }
-                                })
-                        }}
-                    </tbody>
-                </table>
-            </Show>
+            <iframe
+                src="https://timesprayer.com/widgets.php?frame=2&lang=en&name=jakarta&sound=true&avachang=true&time=0&frcolor=CFCD11"
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+            ></iframe>
         </div>
     }
 }

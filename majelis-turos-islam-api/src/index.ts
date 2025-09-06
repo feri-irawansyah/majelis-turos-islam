@@ -19,6 +19,10 @@ import {
   getKajianData,
   updateEvent,
 } from "./controllers/event-controller";
+import {
+  createComment,
+  getCommentsData,
+} from "./controllers/comment-controller";
 
 type Bindings = {
   DB: D1Database;
@@ -63,6 +67,10 @@ const routes = (app: Hono<{ Bindings: Bindings }>) => {
   // kajian
   app.get("/kajian/data", getKajianData);
   app.post("/kajian/create", createKajian);
+
+  // comments
+  app.get("/comment/data", getCommentsData);
+  app.post("/comment/create", createComment);
 
   app.notFound((c) => c.json({ error: "Not Found" }, 404));
 };

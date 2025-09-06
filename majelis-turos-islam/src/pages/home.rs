@@ -1,5 +1,3 @@
-use std::fmt::format;
-
 use leptos::{prelude::*, task::spawn_local};
 
 use crate::{BACKEND_URL, app::{ArticleData, EventData, KajianData, NewsData, ResultList}, components::section_title::SectionTitle};
@@ -51,7 +49,7 @@ pub fn Home() -> impl IntoView {
     });
 
     Effect::new(move |_| {
-        let url = format!("{}/event/data?page=1&pageSize=9", BACKEND_URL);
+        let url = format!("{}/event/data?page=1&pageSize=4", BACKEND_URL);
         spawn_local(async move {
             if let Ok(response) = gloo_net::http::Request::get(&url).send().await {
                 match response.json::<ResultList<EventData>>().await {
@@ -286,6 +284,35 @@ pub fn EventPreview(data: RwSignal<ResultList<EventData>>, kajian: RwSignal<Resu
                 <div class="col-lg-6 col-12">
                     <Kajian data=kajian />
                 </div>
+                <div class="col-lg-6 col-12">
+                    <div class="row">
+                        {move || {
+                            data.get()
+                                .rows
+                                .iter()
+                                .take(2)
+                                .map(|event| {
+                                    view! {
+                                        <div class="col-lg-6 col-12">
+                                            <div class="card text-bg-dark">
+                                                <img src="/img/turos-1.jpg" class="card-img" alt="..." />
+                                                <div class="card-img-overlay">
+                                                    <h5 class="card-title">{event.title.clone()}</h5>
+                                                    <p class="card-text">
+                                                        This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.
+                                                    </p>
+                                                    <p class="card-text">
+                                                        <small>Last updated 3 mins ago</small>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                })
+                                .collect_view()
+                        }}
+                    </div>
+                </div>
             </div>
         </div>
     }
@@ -294,11 +321,10 @@ pub fn EventPreview(data: RwSignal<ResultList<EventData>>, kajian: RwSignal<Resu
 #[component]
 pub fn Kajian(data: RwSignal<ResultList<KajianData>>) -> impl IntoView {
 
-    let auto_slide = RwSignal::new(true);
-    let playing = RwSignal::new(false);
+    let current_playing = RwSignal::new(None::<String>);
 
     view! {
-        <div id="eventCarousel" class="carousel slide event-slider" data-bs-ride="carousel">
+        <div id="eventCarousel" class="carousel slide event-slider">
             // <!-- Indicators -->
             <div class="carousel-indicators">
                 <Show when=move || !data.get().rows.is_empty() fallback=|| view! {}>
@@ -318,6 +344,9 @@ pub fn Kajian(data: RwSignal<ResultList<KajianData>>) -> impl IntoView {
                                 view! {
                                     <button
                                         type="button"
+                                        on:click=move |_| {
+                                            current_playing.set(None);
+                                        }
                                         data-bs-target="#eventCarousel"
                                         data-bs-slide-to=display_i.to_string()
                                         class=format!(
@@ -353,21 +382,14 @@ pub fn Kajian(data: RwSignal<ResultList<KajianData>>) -> impl IntoView {
                             .map(|(orig_i, event)| {
                                 let display_i = n - 1 - orig_i;
                                 view! {
-                                    <div
-                                        class=format!(
-                                            "carousel-item {}",
-                                            if display_i == 0 { "active" } else { "" },
-                                        )
-                                        data-bs-interval="5000"
-                                    >
+                                    <div class=format!(
+                                        "carousel-item {}",
+                                        if display_i == 0 { "active" } else { "" },
+                                    )>
                                         <div class="carousel-img-wrapper">
                                             <YoutubeEmbed
                                                 url=event.yt_link.clone()
-                                                playing=playing
-                                                on_play=Callback::new(move |_| {
-                                                    playing.set(true);
-                                                    auto_slide.set(false);
-                                                })
+                                                current_playing=current_playing
                                             />
                                         </div>
                                     </div>
@@ -382,15 +404,21 @@ pub fn Kajian(data: RwSignal<ResultList<KajianData>>) -> impl IntoView {
 }
 
 #[component]
-pub fn YoutubeEmbed(url: String, on_play: Callback<(), ()>, playing: RwSignal<bool>) -> impl IntoView {
+pub fn YoutubeEmbed(url: String, current_playing: RwSignal<Option<String>>) -> impl IntoView {
     let video_id = url.split("v=").nth(1).unwrap_or("").to_string();
     let thumb_url = format!("https://img.youtube.com/vi/{}/hqdefault.jpg", video_id);
     let embed_url = format!("https://www.youtube.com/embed/{}?autoplay=1", video_id);
+    let video_id_clone = video_id.clone(); // copy tambahan
 
     view! {
-        <div class="youtube-thumbnail" on:click=move |_| _ = on_play>
+        <div
+            class="youtube-thumbnail"
+            on:click=move |_| {
+                current_playing.set(Some(video_id_clone.clone()));
+            }
+        >
             <Show
-                when=move || playing.get()
+                when=move || current_playing.get() == Some(video_id.clone())
                 fallback=move || {
                     let url = thumb_url.clone();
                     view! {
@@ -423,6 +451,7 @@ pub fn YoutubeEmbed(url: String, on_play: Callback<(), ()>, playing: RwSignal<bo
         </div>
     }
 }
+
 
 // <picture>
 //     <source
